@@ -1,3 +1,15 @@
+/**
+ * bj-router 9.3.0
+ * Lightweight router in vanilla javascript for the BuyerJourneyJS project
+ * https://swiperjs.com
+ *
+ * Copyright (c) 2014-present, Antonio Fregoso.
+ *
+ * GNU GENERAL PUBLIC LICENSE
+ *
+ * Released on: 
+ */
+
 import {Utils, ArgumentNotFoundError as ArgNotFound, ArgumentTypeError as ArgTypeError } from "./utils.js";
 
 
@@ -12,6 +24,8 @@ export class bjRouter {
      * @param {Object} options 
      *  @param {boolean} [optioms.hashSensitive=false] - If set to true the router will respond to the #hashe in the urls
      *  @param {boolean} [options.caseInsensitive=true] - If set to false, uri matching will be case sensitive.
+     * @example
+     * const App = new bjRouter({hashSensitive:true});
      */
     constructor(options){
         this.routes = [];
@@ -29,7 +43,9 @@ export class bjRouter {
      * @method
      * @param {string} uri - uri route to be matched
      * @param {function} callback callback a callback function to be invoked if the route has been matched.
-     * @returns 
+     * @example
+     * App.on('/', home);
+     * App.on('/#blog', blog);
      */
     on(uri, callback){        
         if(!Utils.isSet(uri)) throw new ArgNotFound("uri")
@@ -63,8 +79,11 @@ export class bjRouter {
     }
 
     /**
+     * By default bjRouter generates a 404 error page, but it can be customized by a Callback function passed to App.onNotFound.
      * @method
      * @param {function} page - Callback function to render on error 404
+     * @example
+     * App.onNotFound(notFound);
      */
     onNotFound(page){
         if(typeof page !== "function") throw new TypeError('typeof callback must be a function'); 
@@ -84,14 +103,14 @@ export class bjRouter {
 
     /**
      * @method
-     * @param {string} page - Name of page not found
+     * @param {string} url - Name of page not found
      */
-    notFoundDefault(page){
+    notFoundDefault(url){
         document.title = "Error 404 | Funnels Router"
         document.body.innerHTML =  /* html */`
         <h2>Sorry!</h2>
         <h1>Error 404</h1>
-        <p>The page ${page} could not be found.</p>
+        <p>The page ${url} could not be found.</p>
         `
     }
 
@@ -99,7 +118,7 @@ export class bjRouter {
      * 
      * @returns {string}  - Browser language in 3 character format
      */
-    getLang(){
+    #getLang(){
         if (navigator.languages != undefined) 
           return navigator.languages[0].substring(0,2)
         return navigator.language.substring(0,2)
@@ -115,7 +134,6 @@ export class bjRouter {
      * App.on("/contact", contactCallback).setName("contact");
      * App.on.notFoundHandler(myNotFoundHandler);
      * App.init();
-     * @returns Callback to render the page
      */
     route(){  
         this.routes.forEach((route)=>{
@@ -127,10 +145,10 @@ export class bjRouter {
         let qs = null;
 
         let routerObj = {
-            i18n:this.getLang(),
+            i18n:this.#getLang(),
             setContext: this.setContext,
             pathFor: (name, parameter)=>{
-                return this.#pathFor(name, parameter);
+                return this.pathFor(name, parameter);
             }
         }
 
@@ -165,7 +183,7 @@ export class bjRouter {
             if (this.notFoundHandler===null){
                 return this.notFoundDefault(key);
             }else{
-                return this.notFoundHandler(this, key)
+                return this.notFoundHandler(key)
             }
         }
     }
@@ -183,13 +201,17 @@ export class bjRouter {
 
     }
 
-        /**
-         * @method
-         * @param {string} name -route name
-         * @example
-         * App.on("/user/login", contactCallback).setName("user-login");
-         * console.log(App.pathFor("user-login")) // output: /user/login
-         */
+    /**
+     * @method
+     * @param {string} name -route name
+     * @example     * 
+     * const App = new bjRouter();
+     * App.on("/user/login", Callback).setName("user-login");
+     * ....
+     * function Callback(req, router){
+     *  console.log(App.pathFor("user-login")) // output: /user/login
+     * }
+     */
     setName(name){
         if(!Utils.isSet(name)) throw new ArgNotFound("name");
         if(!Utils.isString(name)) throw new ArgTypeError("name", "string", name);
@@ -203,46 +225,51 @@ export class bjRouter {
     }
 
     /**
-     * @method
-     * Match the uri route where a parameter name matches a regular expression. This method must be chained to the
-     * ''App.on'' method.
-     * @param {*} name name parameter name to match
-     * @param {*} regExp regExp regular expression pattern but must be in string format, without front slashes that converts
-     * it to a regExp object. E.g "0-9", "[A-Z]". See example below  
-     * Special characters which you wish to escape with the backslash must be double escaped. E.g "\\\w" instead of "\w";
+     * 
+     * @param {*} name 
+     * @param {*} parameters 
      * @example
-     *  App.on("/{page-name}/{id}", callBackFunction).where("id","[0-9]+");
-     * this route will match my-site.com/user/10, my-site.com/user/15
-     * it won't match my-site.com/admin/10, my-site.com/user/login
-     */ 
-    where(name, regExp){
+     * App.on("/user/home", homeCallback).setName("user-home");
+     * App.on("/user/login", loginCallback).setName("user-login");
+     * ....
+     * function loginCallback(req, router){
+     *  onsole.log(router.pathFor("user-home")) // outputs: /user/home
+     *  console.log(router.pathFor("user-login")) // outputs: /user/login
+     * }
+     */
+    pathFor(name, parameters = {}){
         if(!Utils.isSet(name)) throw new ArgNotFound("name");
-        if(!Utils.isSet(regExp)) throw new ArgNotFound("regExp");
-        if(!Utils.isString(name)) throw new ArgTypeError("name", "string", name);
-        if(!Utils.isString(regExp)) throw new ArgTypeError("regExp", "string", regExp);
-
-       let route = this.routes[this.routes.length - 1]; 
-
-       if (route.parameters.length === 0) throw new Error(`No Parameters Found: Could not set paramater regExpression for [${route.uri}] because the route has no parameters`);
-        
-        regExp = regExp.replace(/\(/g,"\\(");
-        regExp = regExp.replace(/\)/g,"\\)");
-
-        regExp = `(${regExp}+)`;
-        console.log('?????????????????????????????????????');
-        console.log(route.parameters);
-        let parameterFound = false;
-        route.parameters.forEach((parameter, index)=>{
-            if(parameter[name] !== undefined){
-                parameterFound = true;
-                parameter[name].regExp = regExp;
+        if(!Utils.isString(name)) throw new ArgTypeError("name", "string", string);
+        if(Utils.isEmpty(name)) throw new TypeError("name cannot be empty");
+        let nameFound = false;
+        let uri;
+        this.routes.some(route=>{
+            if(route.name === name){
+                nameFound = true;
+                uri = route.uri;
+                if(this.#containsParameter(uri)){
+                    
+                    if(!Utils.isSet(parameters)) throw new ArgNotFound("parameters");
+                    if(!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
+                    if(Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
+                    let array  = [];
+                    for(let value of route.uri.match(/\{(\w+)\}/g)){
+                        value = value.replace("{","");
+                        value = value.replace("}","");
+                        array.push(value);
+                    }
+                    if(array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`)
+                    for(let parameter in parameters){
+                        if (!array.includes(parameter)) throw new Error(`Invalid parameter name [${parameter}]`);
+                        let r = new RegExp(`{${parameter}}`,"g");
+                        uri = uri.replace(r, parameters[parameter]);
+                    }
+                }
+            }else{
+                uri = false;
             }
         });
-
-        if(!parameterFound) throw new Error(`Invalid Parameter: Could not set paramater regExpression for [${route.uri}] because the parameter [${name}] does not exist`);
-
-        return this;
-
+        return uri;
     }
 
 
@@ -287,7 +314,6 @@ export class bjRouter {
 
     #proccessRegExp(route){
         let regExp = route.uri;
-        console.log('uri: ', route.uri)
         // escape special characters
         regExp = regExp.replace(/\//g, "\\/");
         regExp = regExp.replace(/\./g, "\\.");
@@ -310,40 +336,6 @@ export class bjRouter {
         return route;
     }
 
-    #pathFor(name, parameters = {}){
-        if(!Utils.isSet(name)) throw new ArgNotFound("name");
-        if(!Utils.isString(name)) throw new ArgTypeError("name", "string", string);
-        if(Utils.isEmpty(name)) throw new TypeError("name cannot be empty");
-        let nameFound = false;
-        let uri;
-        this.routes.some(route=>{
-            if(route.name === name){
-                nameFound = true;
-                uri = route.uri;
-                if(this.#containsParameter(uri)){
-                    
-                    if(!Utils.isSet(parameters)) throw new ArgNotFound("parameters");
-                    if(!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
-                    if(Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
-                    let array  = [];
-                    for(let value of route.uri.match(/\{(\w+)\}/g)){
-                        value = value.replace("{","");
-                        value = value.replace("}","");
-                        array.push(value);
-                    }
-                    if(array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`)
-                    for(let parameter in parameters){
-                        if (!array.includes(parameter)) throw new Error(`Invalid parameter name [${parameter}]`);
-                        let r = new RegExp(`{${parameter}}`,"g");
-                        uri = uri.replace(r, parameters[parameter]);
-                    }
-                }
-            }else{
-                uri = false;
-            }
-        });
-        return uri;
-    }
-
+    
     
 }

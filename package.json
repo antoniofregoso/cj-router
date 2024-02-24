@@ -1,9 +1,12 @@
 {
   "name": "bj-router",
   "version": "1.0.0",
-  "description": "Light router in vanilla javascript",
-  "main": "src/index.js",
+  "description": "Light router in vanilla javascript for ",
+  "main": "dist/bjrouter",
+  "module": "src/bjrouter",
   "scripts": {
+    "prod": "esbuild src/bjrouter.js --bundle --minify  --outfile=dist/bjrouter.min.js",
+    "build": "esbuild src/bjrouter.js --bundle  --outfile=dist/bjrouter.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -11,5 +14,8 @@
     "url": "git+https://github.com/antoniofregoso/bj-router.git"
   },
   "author": "Antonio Fregoso <antoniofregoso@protonmail.com>",
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "esbuild": "^0.20.1"
+  }
 }
