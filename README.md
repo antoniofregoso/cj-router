@@ -18,6 +18,7 @@ Lightweight Router in vanilla javascript for the BuyerJourneyJS project.
 ## Documentation 
 - [BuyerJourneyJS project](https://buyerjourney.ninja/).
 - [bj-router](https://buyerjourney.ninja/bj-router).
+- [Get started](https://buyerjourney.ninja/get-started).
 
 ## License
 bi-router is [GPL-3.0-or-later](./LICENSE).
