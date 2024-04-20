@@ -1,7 +1,7 @@
 {
-  "name": "bj-router",
+  "name": "@buyerjourney/router",
   "version": "1.0.0",
-  "description": "Light router in vanilla javascript for ",
+  "description": "Light router in vanilla javascript for the BuyerJourneyJS project",
   "main": "dist/bjrouter",
   "module": "src/bjrouter",
   "scripts": {
@@ -13,9 +13,17 @@
     "type": "git",
     "url": "git+https://github.com/antoniofregoso/bj-router.git"
   },
+  "keywords": [
+    "router",
+    "spa",
+    "single-page-router",
+    "vanilla-router",
+    "BuyerJourneyJS"
+  ],
   "author": "Antonio Fregoso <antoniofregoso@protonmail.com>",
   "license": "GPL-3.0-or-later",
-  "dependencies": {
+  "homepage": "https://buyerjourney.ninja/router",
+  "devDependencies": {
     "esbuild": "^0.20.1"
   }
 }
