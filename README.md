@@ -13,6 +13,20 @@ Lightweight Router in vanilla javascript for the BuyerJourneyJS project.
 - Error 404: Callback function included.
 - Error 404: Customizable Callback function.
 
+## Example
+
+```javascript
+import { bjRouter } from  "@buyerjourney/router";
+import { home, store, blog } from "./app/pages";
+
+App = new bjRouter({ hashSensitive:true});
+App.on('/', home);
+App.on('#store/{product}', store);
+App.on('#blog/{article}', blog);
+
+App.run();
+```
+
 ## Documentation 
 - [BuyerJourneyJS project](https://buyerjourney.ninja/).
 - [bj-router](https://buyerjourney.ninja/router).

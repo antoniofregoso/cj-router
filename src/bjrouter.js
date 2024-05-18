@@ -133,7 +133,7 @@ export class bjRouter {
      * App.on("/about", aboutCallback).setName("about");
      * App.on("/contact", contactCallback).setName("contact");
      * App.on.notFoundHandler(myNotFoundHandler);
-     * App.init();
+     * App.run();
      */
     route(){  
         this.routes.forEach((route)=>{
@@ -172,6 +172,7 @@ export class bjRouter {
                 found = true;
                 let request = {};
                 request.uri = key;
+                request.referrer = document.referrer;
                 qs===null?request.query=null:request.query=Object.fromEntries(new URLSearchParams(qs));
                 request.params = this.#processRequestParameters(route, key);
                 return route.callback.call(this, request, routerObj);
@@ -191,7 +192,7 @@ export class bjRouter {
     /**
      * Initialize the router and if the -hashSensitive- option is activated add the -hashchange- event
      */
-    init(){  
+    run(){  
         this.route();
         if (this.config.hashSensitive) {
             window.addEventListener('hashchange', ()=>{
