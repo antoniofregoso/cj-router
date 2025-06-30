@@ -1,5 +1,5 @@
 /**
- * bj-router 9.3.0
+ * Router 9.3.0
  * Lightweight router in vanilla javascript for the BuyerJourneyJS project
  * https://swiperjs.com
  *
@@ -13,7 +13,7 @@
 import {Utils, ArgumentNotFoundError as ArgNotFound, ArgumentTypeError as ArgTypeError } from "./utils.js";
 
 
-export class bjRouter {
+export class Router {
 
     notFoundHandler = null;
     store = null;
