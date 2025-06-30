@@ -1,8 +1,5 @@
-# bj-router
+# cj-router
 Lightweight Router in vanilla javascript for the BuyerJourneyJS project.
-
-## Sponsors
-[<img src="https://www.conference.com.mx/web/image/website/3/logo/Conference?unique=cb769b7">](https://www.conference.com.mx/comercializacion-digital)
 
 ## Features
 - Multiple routes with path and callback function.
@@ -28,9 +25,9 @@ App.run();
 ```
 
 ## Documentation 
-- [BuyerJourneyJS project](https://buyerjourney.ninja/).
-- [bj-router](https://buyerjourney.ninja/router).
-- [Get started](https://buyerjourney.ninja/get-started).
+- [CustumerJourneyJS project](https://customerjourney.ninja/).
+- [cj-router](https://customerjourney.ninja/documentation/router/).
+- [Get started](https://customerjourney.ninja/getting-started/).
 
 ## License
-bj-router is [GPL-3.0-or-later](./LICENSE).
+cj-router is [GPL-3.0-or-later](./LICENSE).
