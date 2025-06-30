@@ -1,5 +1,5 @@
 {
-  "name": "@bcustomerjourney/router",
+  "name": "@customerjourney/router",
   "version": "1.2.0",
   "description": "Light router in vanilla javascript for the BuyerJourneyJS project",
   "main": "dist/router",
