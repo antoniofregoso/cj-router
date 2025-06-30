@@ -1,9 +1,9 @@
 {
   "name": "@customerjourney/cj-router",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Light router in vanilla javascript for the BuyerJourneyJS project",
-  "main": "dist/router",
-  "module": "src/router",
+  "main": "dist/Router",
+  "module": "src/Router",
   "scripts": {
     "prod": "esbuild src/Router.js --bundle --minify  --outfile=dist/Router.min.js",
     "build": "esbuild src/Router.js --bundle  --outfile=dist/Router.js",
