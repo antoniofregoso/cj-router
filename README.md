@@ -1,6 +1,7 @@
 # cj-router
 Lightweight Router in vanilla javascript for the BuyerJourneyJS project.
-
+## CustumerJourney.js
+This library is part of the [CustumerJourney.js](https://customerjourney.ninja/) project. Vanilla JavaScript libraries optimized for creating sales funnels with hyper-personalized customer experience powered by artificial intelligence.
 ## Features
 - Multiple routes with path and callback function.
 - Single page application routing using hash.
@@ -31,3 +32,5 @@ App.run();
 
 ## License
 cj-router is [GPL-3.0-or-later](./LICENSE).
+## Sponsor
+[Become a CustumerJourney.js Sponsor](https://customerjourney.ninja/sponsor/).

@@ -122,10 +122,14 @@
      * App.on('/#blog', blog);
      */
     on(uri, callback) {
-      if (!Utils.isSet(uri)) throw new ArgumentNotFoundError("uri");
-      if (!Utils.isSet(callback)) throw new ArgumentNotFoundError("callback");
-      if (!Utils.isString(uri)) throw new ArgumentTypeError("uri", "string", uri);
-      if (!Utils.isFunction(callback)) throw new ArgumentTypeError("callback", "function", callback);
+      if (!Utils.isSet(uri))
+        throw new ArgumentNotFoundError("uri");
+      if (!Utils.isSet(callback))
+        throw new ArgumentNotFoundError("callback");
+      if (!Utils.isString(uri))
+        throw new ArgumentTypeError("uri", "string", uri);
+      if (!Utils.isFunction(callback))
+        throw new ArgumentTypeError("callback", "function", callback);
       let route = {
         uri: null,
         callback: null,
@@ -140,7 +144,8 @@
       ;
       uri = uri.startsWith("/") ? uri : `/${uri}`;
       this.routes.forEach((route2) => {
-        if (route2.uri === uri) throw new Error(`the uri ${route2.uri} already exists`);
+        if (route2.uri === uri)
+          throw new Error(`the uri ${route2.uri} already exists`);
       });
       route.uri = uri;
       route.callback = callback;
@@ -156,7 +161,8 @@
      * App.onNotFound(notFound);
      */
     onNotFound(page) {
-      if (typeof page !== "function") throw new TypeError("typeof callback must be a function");
+      if (typeof page !== "function")
+        throw new TypeError("typeof callback must be a function");
       this.notFoundHandler = page;
     }
     setContext(props, context = {}) {
@@ -274,11 +280,14 @@
      * }
      */
     setName(name) {
-      if (!Utils.isSet(name)) throw new ArgumentNotFoundError("name");
-      if (!Utils.isString(name)) throw new ArgumentTypeError("name", "string", name);
+      if (!Utils.isSet(name))
+        throw new ArgumentNotFoundError("name");
+      if (!Utils.isString(name))
+        throw new ArgumentTypeError("name", "string", name);
       let targetRoute = this.routes[this.routes.length - 1];
       this.routes.forEach((route) => {
-        if (route.name === name) throw new Error(`Duplicate naming. A route with name ${name} already exists`);
+        if (route.name === name)
+          throw new Error(`Duplicate naming. A route with name ${name} already exists`);
       });
       targetRoute.name = name;
       return this;
@@ -297,9 +306,12 @@
      * }
      */
     pathFor(name, parameters = {}) {
-      if (!Utils.isSet(name)) throw new ArgumentNotFoundError("name");
-      if (!Utils.isString(name)) throw new ArgumentTypeError("name", "string", string);
-      if (Utils.isEmpty(name)) throw new TypeError("name cannot be empty");
+      if (!Utils.isSet(name))
+        throw new ArgumentNotFoundError("name");
+      if (!Utils.isString(name))
+        throw new ArgumentTypeError("name", "string", string);
+      if (Utils.isEmpty(name))
+        throw new TypeError("name cannot be empty");
       let nameFound = false;
       let uri;
       this.routes.some((route) => {
@@ -307,18 +319,23 @@
           nameFound = true;
           uri = route.uri;
           if (this.#containsParameter(uri)) {
-            if (!Utils.isSet(parameters)) throw new ArgumentNotFoundError("parameters");
-            if (!Utils.isObject(parameters)) throw new ArgumentTypeError("parameters", "object", parameters);
-            if (Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
+            if (!Utils.isSet(parameters))
+              throw new ArgumentNotFoundError("parameters");
+            if (!Utils.isObject(parameters))
+              throw new ArgumentTypeError("parameters", "object", parameters);
+            if (Utils.isEmpty(parameters))
+              throw new TypeError("parameters cannot be empty");
             let array = [];
             for (let value of route.uri.match(/\{(\w+)\}/g)) {
               value = value.replace("{", "");
               value = value.replace("}", "");
               array.push(value);
             }
-            if (array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`);
+            if (array.length !== Object.getOwnPropertyNames(parameters).length)
+              throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`);
             for (let parameter in parameters) {
-              if (!array.includes(parameter)) throw new Error(`Invalid parameter name [${parameter}]`);
+              if (!array.includes(parameter))
+                throw new Error(`Invalid parameter name [${parameter}]`);
               let r = new RegExp(`{${parameter}}`, "g");
               uri = uri.replace(r, parameters[parameter]);
             }
@@ -354,7 +371,8 @@
     }
     #processRequestParameters(route, key) {
       let routeMatched = key.match(route.regExp);
-      if (!routeMatched) return;
+      if (!routeMatched)
+        return;
       let param = {};
       routeMatched.forEach((value, index) => {
         if (index !== 0) {
