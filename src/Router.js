@@ -34,8 +34,6 @@ export class Router {
             caseInsensitive: true,
         };
         this.config = {...this.default,...options}; 
-         
-       
     };
 
     /**
@@ -120,7 +118,7 @@ export class Router {
      */
     #getLang(){
         if (navigator.languages != undefined) 
-          return navigator.languages[0].substring(0,2)
+            return navigator.languages[0].substring(0,2)
         return navigator.language.substring(0,2)
     }
 
@@ -171,7 +169,8 @@ export class Router {
             if(key.match(route.regExp)){
                 found = true;
                 let request = {};
-                request.uri = key;
+                request.hostname = window.location.hostname
+                request.pathname = key;
                 request.referrer = document.referrer;
                 qs===null?request.query=null:request.query=Object.fromEntries(new URLSearchParams(qs));
                 request.params = this.#processRequestParameters(route, key);
