@@ -240,7 +240,8 @@
         if (key.match(route.regExp)) {
           found = true;
           let request = {};
-          request.uri = key;
+          request.hostname = window.location.hostname;
+          request.pathname = key;
           request.referrer = document.referrer;
           qs === null ? request.query = null : request.query = Object.fromEntries(new URLSearchParams(qs));
           request.params = this.#processRequestParameters(route, key);
