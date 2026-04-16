@@ -32,6 +32,7 @@ export class Router {
         this.default = {
             hashSensitive: false,
             caseInsensitive: true,
+            basePath: '',
         };
         this.config = {...this.default,...options}; 
     };
@@ -61,14 +62,13 @@ export class Router {
             name: null,
             current: false
         }
-        if(this._caseInsensitive) {
+        if(this.config.caseInsensitive) {
             uri = uri.toLowerCase()
         };  
         uri = uri.startsWith("/") ? uri : `/${uri}`;    
         this.routes.forEach(route=>{
             if(route.uri === uri) throw new Error(`the uri ${route.uri} already exists`);
         });
-        
         route.uri = uri;
         route.callback = callback;
         route.parameters = this.#proccessParameters(route);
@@ -162,6 +162,10 @@ export class Router {
             }
         }else{
             key = location.pathname; 
+            if(this.config.basePath && key.startsWith(this.config.basePath)){
+                key = key.substring(this.config.basePath.length);
+                if(key === '') key = '/';
+            }
             location.search===""?qs=null:qs=location.search;
         }
         key = key.startsWith("/") ? key : `/${key}`;
@@ -197,7 +201,11 @@ export class Router {
             window.addEventListener('hashchange', ()=>{
                 this.route();
             });
-        } 
+        } else {
+            window.addEventListener('popstate', ()=>{
+                this.route();
+            });
+        }
 
     }
 
@@ -319,7 +327,7 @@ export class Router {
         regExp = regExp.replace(/\./g, "\\.");
         regExp = regExp.replace("/", "/?");
         if(this.#containsParameter(route.uri)){
-            regExp.replace(/{\w+}/g, (parameter)=>{
+            regExp = regExp.replace(/{\w+}/g, (parameter)=>{
                 let parameterName = parameter.replace("{","");
                 parameterName = parameterName.replace("}","");
                 route.parameters.some((i)=>{
@@ -331,8 +339,9 @@ export class Router {
                 return parameter;
             });
         }
-        regExp = `^${regExp}$`;
-        route.regExp = new RegExp(regExp);
+        regExp = `^${regExp}\\/?$`;
+        let flags = this.config.caseInsensitive ? "i" : "";
+        route.regExp = new RegExp(regExp, flags);
         return route;
     }
 
