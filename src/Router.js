@@ -88,16 +88,7 @@ export class Router {
         this.notFoundHandler = page;
     }
 
-    setContext(props,context={}){
-        if (props!=undefined){
-            props.context = context;
-        }else {
-            props = {}
-            console.error('router.setContext error: There are no props to assign context. Review the data that you send to the component.')
-        }
-        
-        return props;
-    }
+
 
     /**
      * @method
@@ -112,15 +103,7 @@ export class Router {
         `
     }
 
-    /**
-     * 
-     * @returns {string}  - Browser language in 3 character format
-     */
-    #getLang(){
-        if (navigator.languages != undefined) 
-            return navigator.languages[0].substring(0,2)
-        return navigator.language.substring(0,2)
-    }
+
 
     /**
      * @method
@@ -143,8 +126,6 @@ export class Router {
         let qs = null;
 
         let routerObj = {
-            i18n:this.#getLang(),
-            setContext: this.setContext,
             pathFor: (name, parameter)=>{
                 return this.pathFor(name, parameter);
             }

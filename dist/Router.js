@@ -108,7 +108,8 @@
       this.routes = [];
       this.default = {
         hashSensitive: false,
-        caseInsensitive: true
+        caseInsensitive: true,
+        basePath: ""
       };
       this.config = { ...this.default, ...options };
     }
@@ -138,7 +139,7 @@
         name: null,
         current: false
       };
-      if (this._caseInsensitive) {
+      if (this.config.caseInsensitive) {
         uri = uri.toLowerCase();
       }
       ;
@@ -165,15 +166,6 @@
         throw new TypeError("typeof callback must be a function");
       this.notFoundHandler = page;
     }
-    setContext(props, context = {}) {
-      if (props != void 0) {
-        props.context = context;
-      } else {
-        props = {};
-        console.error("router.setContext error: There are no props to assign context. Review the data that you send to the component.");
-      }
-      return props;
-    }
     /**
      * @method
      * @param {string} url - Name of page not found
@@ -186,15 +178,6 @@
         <h1>Error 404</h1>
         <p>The page ${url} could not be found.</p>
         `;
-    }
-    /**
-     * 
-     * @returns {string}  - Browser language in 3 character format
-     */
-    #getLang() {
-      if (navigator.languages != void 0)
-        return navigator.languages[0].substring(0, 2);
-      return navigator.language.substring(0, 2);
     }
     /**
      * @method
@@ -215,8 +198,6 @@
       let key = null;
       let qs = null;
       let routerObj = {
-        i18n: this.#getLang(),
-        setContext: this.setContext,
         pathFor: (name, parameter) => {
           return this.pathFor(name, parameter);
         }
@@ -233,6 +214,11 @@
         }
       } else {
         key = location.pathname;
+        if (this.config.basePath && key.startsWith(this.config.basePath)) {
+          key = key.substring(this.config.basePath.length);
+          if (key === "")
+            key = "/";
+        }
         location.search === "" ? qs = null : qs = location.search;
       }
       key = key.startsWith("/") ? key : `/${key}`;
@@ -265,6 +251,10 @@
       this.route();
       if (this.config.hashSensitive) {
         window.addEventListener("hashchange", () => {
+          this.route();
+        });
+      } else {
+        window.addEventListener("popstate", () => {
           this.route();
         });
       }
@@ -389,7 +379,7 @@
       regExp = regExp.replace(/\./g, "\\.");
       regExp = regExp.replace("/", "/?");
       if (this.#containsParameter(route.uri)) {
-        regExp.replace(/{\w+}/g, (parameter) => {
+        regExp = regExp.replace(/{\w+}/g, (parameter) => {
           let parameterName = parameter.replace("{", "");
           parameterName = parameterName.replace("}", "");
           route.parameters.some((i) => {
@@ -401,8 +391,9 @@
           return parameter;
         });
       }
-      regExp = `^${regExp}$`;
-      route.regExp = new RegExp(regExp);
+      regExp = `^${regExp}\\/?$`;
+      let flags = this.config.caseInsensitive ? "i" : "";
+      route.regExp = new RegExp(regExp, flags);
       return route;
     }
   };
