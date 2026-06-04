@@ -22,7 +22,7 @@
   ],
   "author": "Antonio Fregoso <antoniofregoso@protonmail.com>",
   "license": "GPL-3.0-or-later",
-  "homepage": "https://antoniofregoso.github.io/customerjourney/documentation/router/",
+  "homepage": "https://antoniofregoso.github.io/customerjourney/documentation/router/router/",
   "devDependencies": {
     "esbuild": "^0.20.1"
   }
