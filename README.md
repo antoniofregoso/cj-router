@@ -27,8 +27,8 @@ App.run();
 
 ## Documentation 
 - [CustumerJourneyJS project](https://antoniofregoso.github.io/customerjourney/).
-- [cj-router](https://antoniofregoso.github.io/cj-router/).
-- [Get started](https://antoniofregoso.github.io/cj-router/getting-started/).
+- [cj-router](https://antoniofregoso.github.io/customerjourney/documentation/router/cj-router/).
+- [Get started](https://antoniofregoso.github.io/customerjourney/documentation/router/getting-started/).
 
 ## License
 cj-router is [GPL-3.0-or-later](./LICENSE).

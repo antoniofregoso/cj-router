@@ -1,6 +1,6 @@
 {
   "name": "@customerjourney/cj-router",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Light router in vanilla javascript for the BuyerJourneyJS project",
   "main": "dist/Router",
   "module": "src/Router",
@@ -22,7 +22,7 @@
   ],
   "author": "Antonio Fregoso <antoniofregoso@protonmail.com>",
   "license": "GPL-3.0-or-later",
-  "homepage": "https://customerjourney.ninja/documentation/router/router/",
+  "homepage": "https://antoniofregoso.github.io/customerjourney/documentation/router/",
   "devDependencies": {
     "esbuild": "^0.20.1"
   }
