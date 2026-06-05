@@ -317,7 +317,7 @@
             if (Utils.isEmpty(parameters))
               throw new TypeError("parameters cannot be empty");
             let array = [];
-            for (let value of route.uri.match(/\{(\w+)\}/g)) {
+            for (let value of route.uri.match(/[{](\w+)[}]/g)) {
               value = value.replace("{", "");
               value = value.replace("}", "");
               array.push(value);
@@ -341,24 +341,24 @@
       let parameters = [];
       let sn = 0;
       if (this.#containsParameter(route.uri)) {
-        route.uri.replace(/\{\w+\}/g, (parameter) => {
+        const matches = route.uri.match(/[{]\w+[}]/g) || [];
+        matches.forEach((parameter) => {
           sn++;
-          parameter.replace(/\w+/, (parameterName) => {
-            let obj = {};
-            obj[parameterName] = {
-              sn,
-              regExp: "([^\\/]+)",
-              // catch any word except '/' forward slash
-              value: null
-            };
-            parameters.push(obj);
-          });
+          const parameterName = parameter.replace("{", "").replace("}", "");
+          let obj = {};
+          obj[parameterName] = {
+            sn,
+            regExp: "([^\\/]+)",
+            // captura cualquier cosa menos '/'
+            value: null
+          };
+          parameters.push(obj);
         });
       }
       return parameters;
     }
     #containsParameter(uri) {
-      return uri.search(/{\w+}/g) >= 0;
+      return /[{]\w+[}]/g.test(uri);
     }
     #processRequestParameters(route, key) {
       let routeMatched = key.match(route.regExp);
@@ -375,20 +375,18 @@
     }
     #proccessRegExp(route) {
       let regExp = route.uri;
-      regExp = regExp.replace(/\//g, "\\/");
       regExp = regExp.replace(/\./g, "\\.");
-      regExp = regExp.replace("/", "/?");
+      regExp = regExp.replace(/\//g, "\\/");
+      if (regExp.startsWith("\\/")) {
+        regExp = "\\/?" + regExp.substring(2);
+      }
       if (this.#containsParameter(route.uri)) {
-        regExp = regExp.replace(/{\w+}/g, (parameter) => {
-          let parameterName = parameter.replace("{", "");
-          parameterName = parameterName.replace("}", "");
-          route.parameters.some((i) => {
-            if (i[parameterName] !== void 0) {
-              regExp = regExp.replace(parameter, i[parameterName].regExp);
-              return regExp;
-            }
-          });
-          return parameter;
+        route.parameters.forEach((paramObj) => {
+          const parameterName = Object.keys(paramObj)[0];
+          const target = `{${parameterName}}`;
+          while (regExp.includes(target)) {
+            regExp = regExp.replace(target, paramObj[parameterName].regExp);
+          }
         });
       }
       regExp = `^${regExp}\\/?$`;

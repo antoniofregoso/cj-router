@@ -1,13 +1,14 @@
 /**
- * Router 9.3.0
- * Lightweight router in vanilla javascript for the BuyerJourneyJS project
- * https://swiperjs.com
+ * Router 1.4.3
+ * Lightweight router in vanilla javascript for the CustomerJourneyJS project
+
+ * Copyright (c) 2026-present, Antonio Fregoso.
  *
- * Copyright (c) 2014-present, Antonio Fregoso.
+ * Released on: 2024-06-01
+ * License: GNU General Public License v3.0
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
- * GNU GENERAL PUBLIC LICENSE
- *
- * Released on: 
+ * This program is free software: you can redistribute it and/or modify
  */
 
 import {Utils, ArgumentNotFoundError as ArgNotFound, ArgumentTypeError as ArgTypeError } from "./utils.js";
@@ -242,7 +243,7 @@ export class Router {
                     if(!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
                     if(Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
                     let array  = [];
-                    for(let value of route.uri.match(/\{(\w+)\}/g)){
+                    for(let value of route.uri.match(/[{](\w+)[}]/g)){
                         value = value.replace("{","");
                         value = value.replace("}","");
                         array.push(value);
@@ -268,24 +269,27 @@ export class Router {
         let sn = 0;
 
         if(this.#containsParameter(route.uri)){
-            route.uri.replace(/\{\w+\}/g,(parameter)=>{
+            // Extrae todos los {parametro} de forma segura
+            const matches = route.uri.match(/[{]\w+[}]/g) || [];
+            
+            matches.forEach((parameter)=>{
                 sn++;
-                parameter.replace(/\w+/, (parameterName)=>{
-                    let obj = {};
-                    obj[parameterName] = {
-                        sn: sn,
-                        regExp: "([^\\/]+)", // catch any word except '/' forward slash
-                        value: null
-                    }
-                    parameters.push(obj);
-                });
+                // Limpiamos las llaves para quedarnos solo con el nombre
+                const parameterName = parameter.replace('{', '').replace('}', '');
+                let obj = {};
+                obj[parameterName] = {
+                    sn: sn,
+                    regExp: "([^\\/]+)", // captura cualquier cosa menos '/'
+                    value: null
+                };
+                parameters.push(obj);
             });
         }
         return parameters;
     }
 
     #containsParameter(uri){
-        return uri.search(/{\w+}/g) >= 0;
+        return /[{]\w+[}]/g.test(uri);
     }
 
     #processRequestParameters(route, key){
@@ -303,24 +307,32 @@ export class Router {
 
     #proccessRegExp(route){
         let regExp = route.uri;
-        // escape special characters
-        regExp = regExp.replace(/\//g, "\\/");
+        // 1. Escapar caracteres especiales de URL
         regExp = regExp.replace(/\./g, "\\.");
-        regExp = regExp.replace("/", "/?");
+        regExp = regExp.replace(/\//g, "\\/");
+        
+        // Hacer que la primera barra sea opcional si es necesario
+        if (regExp.startsWith("\\/")) {
+            regExp = "\\/?" + regExp.substring(2);
+        }
+
+        // 2. Reemplazar los parámetros {area} por la regex de captura ([^\/]+)
         if(this.#containsParameter(route.uri)){
-            regExp = regExp.replace(/{\w+}/g, (parameter)=>{
-                let parameterName = parameter.replace("{","");
-                parameterName = parameterName.replace("}","");
-                route.parameters.some((i)=>{
-                    if(i[parameterName] !== undefined) {
-                        regExp = regExp.replace(parameter, i[parameterName].regExp)
-                        return regExp;
-                    }
-                });
-                return parameter;
+            route.parameters.forEach((paramObj) => {
+                const parameterName = Object.keys(paramObj)[0];
+                // Buscamos '{nombre}' de forma segura en el string
+                const target = `{${parameterName}}`;
+                
+                // Reemplazamos textualmente '{area}' por '([^\/]+)'
+                while(regExp.includes(target)) {
+                    regExp = regExp.replace(target, paramObj[parameterName].regExp);
+                }
             });
         }
+
+        // 3. Delimitar el inicio y el fin de la ruta
         regExp = `^${regExp}\\/?$`;
+        
         let flags = this.config.caseInsensitive ? "i" : "";
         route.regExp = new RegExp(regExp, flags);
         return route;

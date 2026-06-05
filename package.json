@@ -1,6 +1,6 @@
 {
   "name": "@customerjourney/cj-router",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Light router in vanilla javascript for the BuyerJourneyJS project",
   "main": "dist/Router",
   "module": "src/Router",
