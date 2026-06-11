@@ -1,5 +1,5 @@
 /**
- * Router 1.4.3
+ * Router 1.4.4
  * Lightweight router in vanilla javascript for the CustomerJourneyJS project
 
  * Copyright (c) 2026-present, Antonio Fregoso.
