@@ -11,7 +11,7 @@
  * This program is free software: you can redistribute it and/or modify
  */
 
-import {Utils, ArgumentNotFoundError as ArgNotFound, ArgumentTypeError as ArgTypeError } from "./utils.js";
+import { Utils, ArgumentNotFoundError as ArgNotFound, ArgumentTypeError as ArgTypeError } from "./utils.js";
 
 
 export class Router {
@@ -28,14 +28,14 @@ export class Router {
      * @example
      * const App = new bjRouter({hashSensitive:true});
      */
-    constructor(options){
+    constructor(options) {
         this.routes = [];
         this.default = {
             hashSensitive: false,
             caseInsensitive: true,
             basePath: '',
         };
-        this.config = {...this.default,...options}; 
+        this.config = { ...this.default, ...options };
     };
 
     /**
@@ -47,12 +47,12 @@ export class Router {
      * App.on('/', home);
      * App.on('/#blog', blog);
      */
-    on(uri, callback){        
-        if(!Utils.isSet(uri)) throw new ArgNotFound("uri")
-        if(!Utils.isSet(callback)) throw new ArgNotFound("callback");
+    on(uri, callback) {
+        if (!Utils.isSet(uri)) throw new ArgNotFound("uri")
+        if (!Utils.isSet(callback)) throw new ArgNotFound("callback");
 
-        if(!Utils.isString(uri)) throw new ArgTypeError("uri", "string", uri);
-        if(!Utils.isFunction(callback)) throw new ArgTypeError("callback", "function", callback);
+        if (!Utils.isString(uri)) throw new ArgTypeError("uri", "string", uri);
+        if (!Utils.isFunction(callback)) throw new ArgTypeError("callback", "function", callback);
 
 
         let route = {
@@ -63,12 +63,12 @@ export class Router {
             name: null,
             current: false
         }
-        if(this.config.caseInsensitive) {
+        if (this.config.caseInsensitive) {
             uri = uri.toLowerCase()
-        };  
-        uri = uri.startsWith("/") ? uri : `/${uri}`;    
-        this.routes.forEach(route=>{
-            if(route.uri === uri) throw new Error(`the uri ${route.uri} already exists`);
+        };
+        uri = uri.startsWith("/") ? uri : `/${uri}`;
+        this.routes.forEach(route => {
+            if (route.uri === uri) throw new Error(`the uri ${route.uri} already exists`);
         });
         route.uri = uri;
         route.callback = callback;
@@ -84,8 +84,8 @@ export class Router {
      * @example
      * App.onNotFound(notFound);
      */
-    onNotFound(page){
-        if(typeof page !== "function") throw new TypeError('typeof callback must be a function'); 
+    onNotFound(page) {
+        if (typeof page !== "function") throw new TypeError('typeof callback must be a function');
         this.notFoundHandler = page;
     }
 
@@ -95,7 +95,7 @@ export class Router {
      * @method
      * @param {string} url - Name of page not found
      */
-    notFoundDefault(url){
+    notFoundDefault(url) {
         document.title = "Error 404 | Funnels Router"
         document.body.innerHTML =  /* html */`
         <h2>Sorry!</h2>
@@ -117,8 +117,8 @@ export class Router {
      * App.on.notFoundHandler(myNotFoundHandler);
      * App.run();
      */
-    route(){  
-        this.routes.forEach((route)=>{
+    route() {
+        this.routes.forEach((route) => {
             this.#proccessRegExp(route);
         }, this);
 
@@ -127,48 +127,48 @@ export class Router {
         let qs = null;
 
         let routerObj = {
-            pathFor: (name, parameter)=>{
+            pathFor: (name, parameter) => {
                 return this.pathFor(name, parameter);
             }
         }
 
-        if (location.hash&&this.config.hashSensitive){
+        if (location.hash && this.config.hashSensitive) {
             let hash = location.hash;
             const i = hash.indexOf('?')
-            if (hash.indexOf('?')===-1){
+            if (hash.indexOf('?') === -1) {
                 key = hash;
                 qs = null;
-            }else{
-                key = hash.substring(0,i);
-                qs = hash.substring(hash.indexOf('?'),hash.length);
+            } else {
+                key = hash.substring(0, i);
+                qs = hash.substring(hash.indexOf('?'), hash.length);
             }
-        }else{
-            key = location.pathname; 
-            if(this.config.basePath && key.startsWith(this.config.basePath)){
+        } else {
+            key = location.pathname;
+            if (this.config.basePath && key.startsWith(this.config.basePath)) {
                 key = key.substring(this.config.basePath.length);
-                if(key === '') key = '/';
+                if (key === '') key = '/';
             }
-            location.search===""?qs=null:qs=location.search;
+            location.search === "" ? qs = null : qs = location.search;
         }
         key = key.startsWith("/") ? key : `/${key}`;
-        this.routes.some(route=>{
-            if(key.match(route.regExp)){
+        this.routes.some(route => {
+            if (key.match(route.regExp)) {
                 found = true;
                 let request = {};
                 request.hostname = window.location.hostname
                 request.pathname = key;
                 request.referrer = document.referrer;
-                qs===null?request.query=null:request.query=Object.fromEntries(new URLSearchParams(qs));
+                qs === null ? request.query = null : request.query = Object.fromEntries(new URLSearchParams(qs));
                 request.params = this.#processRequestParameters(route, key);
                 return route.callback.call(this, request, routerObj);
-            }            
+            }
         })
-        if(!found){
-            let request = {}; 
-            request.uri = key; 
-            if (this.notFoundHandler===null){
+        if (!found) {
+            let request = {};
+            request.uri = key;
+            if (this.notFoundHandler === null) {
                 return this.notFoundDefault(key);
-            }else{
+            } else {
                 return this.notFoundHandler(key)
             }
         }
@@ -177,14 +177,15 @@ export class Router {
     /**
      * Initialize the router and if the -hashSensitive- option is activated add the -hashchange- event
      */
-    run(){  
+    run() {
         this.route();
         if (this.config.hashSensitive) {
-            window.addEventListener('hashchange', ()=>{
+            window.addEventListener('hashchange', () => {
                 this.route();
             });
         } else {
-            window.addEventListener('popstate', ()=>{
+            this.#bindLinks();
+            window.addEventListener('popstate', () => {
                 this.route();
             });
         }
@@ -202,13 +203,13 @@ export class Router {
      *  console.log(App.pathFor("user-login")) // output: /user/login
      * }
      */
-    setName(name){
-        if(!Utils.isSet(name)) throw new ArgNotFound("name");
-        if(!Utils.isString(name)) throw new ArgTypeError("name", "string", name);
+    setName(name) {
+        if (!Utils.isSet(name)) throw new ArgNotFound("name");
+        if (!Utils.isString(name)) throw new ArgTypeError("name", "string", name);
 
         let targetRoute = this.routes[this.routes.length - 1];
-        this.routes.forEach((route)=>{
-            if(route.name === name) throw new Error(`Duplicate naming. A route with name ${name} already exists`);
+        this.routes.forEach((route) => {
+            if (route.name === name) throw new Error(`Duplicate naming. A route with name ${name} already exists`);
         })
         targetRoute.name = name;
         return this;
@@ -227,35 +228,35 @@ export class Router {
      *  console.log(router.pathFor("user-login")) // outputs: /user/login
      * }
      */
-    pathFor(name, parameters = {}){
-        if(!Utils.isSet(name)) throw new ArgNotFound("name");
-        if(!Utils.isString(name)) throw new ArgTypeError("name", "string", string);
-        if(Utils.isEmpty(name)) throw new TypeError("name cannot be empty");
+    pathFor(name, parameters = {}) {
+        if (!Utils.isSet(name)) throw new ArgNotFound("name");
+        if (!Utils.isString(name)) throw new ArgTypeError("name", "string", string);
+        if (Utils.isEmpty(name)) throw new TypeError("name cannot be empty");
         let nameFound = false;
         let uri;
-        this.routes.some(route=>{
-            if(route.name === name){
+        this.routes.some(route => {
+            if (route.name === name) {
                 nameFound = true;
                 uri = route.uri;
-                if(this.#containsParameter(uri)){
-                    
-                    if(!Utils.isSet(parameters)) throw new ArgNotFound("parameters");
-                    if(!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
-                    if(Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
-                    let array  = [];
-                    for(let value of route.uri.match(/[{](\w+)[}]/g)){
-                        value = value.replace("{","");
-                        value = value.replace("}","");
+                if (this.#containsParameter(uri)) {
+
+                    if (!Utils.isSet(parameters)) throw new ArgNotFound("parameters");
+                    if (!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
+                    if (Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
+                    let array = [];
+                    for (let value of route.uri.match(/[{](\w+)[}]/g)) {
+                        value = value.replace("{", "");
+                        value = value.replace("}", "");
                         array.push(value);
                     }
-                    if(array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`)
-                    for(let parameter in parameters){
+                    if (array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`)
+                    for (let parameter in parameters) {
                         if (!array.includes(parameter)) throw new Error(`Invalid parameter name [${parameter}]`);
-                        let r = new RegExp(`{${parameter}}`,"g");
+                        let r = new RegExp(`{${parameter}}`, "g");
                         uri = uri.replace(r, parameters[parameter]);
                     }
                 }
-            }else{
+            } else {
                 uri = false;
             }
         });
@@ -264,15 +265,15 @@ export class Router {
 
 
 
-    #proccessParameters(route){
+    #proccessParameters(route) {
         let parameters = [];
         let sn = 0;
 
-        if(this.#containsParameter(route.uri)){
+        if (this.#containsParameter(route.uri)) {
             // Extrae todos los {parametro} de forma segura
             const matches = route.uri.match(/[{]\w+[}]/g) || [];
-            
-            matches.forEach((parameter)=>{
+
+            matches.forEach((parameter) => {
                 sn++;
                 // Limpiamos las llaves para quedarnos solo con el nombre
                 const parameterName = parameter.replace('{', '').replace('}', '');
@@ -288,16 +289,16 @@ export class Router {
         return parameters;
     }
 
-    #containsParameter(uri){
+    #containsParameter(uri) {
         return /[{]\w+[}]/g.test(uri);
     }
 
-    #processRequestParameters(route, key){
+    #processRequestParameters(route, key) {
         let routeMatched = key.match(route.regExp);
         if (!routeMatched) return;
         let param = {};
-        routeMatched.forEach((value, index)=>{
-            if(index !== 0){
+        routeMatched.forEach((value, index) => {
+            if (index !== 0) {
                 let key = Object.getOwnPropertyNames(route.parameters[index - 1]);
                 param[key] = value;
             }
@@ -305,26 +306,26 @@ export class Router {
         return param;
     }
 
-    #proccessRegExp(route){
+    #proccessRegExp(route) {
         let regExp = route.uri;
         // 1. Escapar caracteres especiales de URL
         regExp = regExp.replace(/\./g, "\\.");
         regExp = regExp.replace(/\//g, "\\/");
-        
+
         // Hacer que la primera barra sea opcional si es necesario
         if (regExp.startsWith("\\/")) {
             regExp = "\\/?" + regExp.substring(2);
         }
 
         // 2. Reemplazar los parámetros {area} por la regex de captura ([^\/]+)
-        if(this.#containsParameter(route.uri)){
+        if (this.#containsParameter(route.uri)) {
             route.parameters.forEach((paramObj) => {
                 const parameterName = Object.keys(paramObj)[0];
                 // Buscamos '{nombre}' de forma segura en el string
                 const target = `{${parameterName}}`;
-                
+
                 // Reemplazamos textualmente '{area}' por '([^\/]+)'
-                while(regExp.includes(target)) {
+                while (regExp.includes(target)) {
                     regExp = regExp.replace(target, paramObj[parameterName].regExp);
                 }
             });
@@ -332,12 +333,24 @@ export class Router {
 
         // 3. Delimitar el inicio y el fin de la ruta
         regExp = `^${regExp}\\/?$`;
-        
+
         let flags = this.config.caseInsensitive ? "i" : "";
         route.regExp = new RegExp(regExp, flags);
         return route;
     }
+    // 4. Intercepta los clics en elementos <a> para manejar la navegación internamente sin recargar la página. Solo intercepta enlaces que no tengan un atributo target y que no sean enlaces externos, anclas o enlaces de correo/teléfono.
+    #bindLinks() {
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link || link.getAttribute('target')) return;
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+                return;
+            }
+            e.preventDefault();
+            window.history.pushState({}, '', href);
+            this.route();
+        });
+    }
 
-    
-    
 }

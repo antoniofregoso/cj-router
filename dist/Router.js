@@ -254,6 +254,7 @@
           this.route();
         });
       } else {
+        this.#bindLinks();
         window.addEventListener("popstate", () => {
           this.route();
         });
@@ -393,6 +394,21 @@
       let flags = this.config.caseInsensitive ? "i" : "";
       route.regExp = new RegExp(regExp, flags);
       return route;
+    }
+    // 4. Intercepta los clics en elementos <a> para manejar la navegación internamente sin recargar la página. Solo intercepta enlaces que no tengan un atributo target y que no sean enlaces externos, anclas o enlaces de correo/teléfono.
+    #bindLinks() {
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("a");
+        if (!link || link.getAttribute("target"))
+          return;
+        const href = link.getAttribute("href");
+        if (!href || href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+          return;
+        }
+        e.preventDefault();
+        window.history.pushState({}, "", href);
+        this.route();
+      });
     }
   };
 })();
