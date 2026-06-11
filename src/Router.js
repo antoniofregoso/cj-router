@@ -1,5 +1,5 @@
 /**
- * Router 1.4.4
+ * Router 1.5.0
  * Lightweight router in vanilla javascript for the CustomerJourneyJS project
 
  * Copyright (c) 2026-present, Antonio Fregoso.
@@ -104,7 +104,17 @@ export class Router {
         `
     }
 
-
+    /**
+     * Manually triggers the 404 Not Found status
+     * @param {string} url - URL that caused the failure
+     */
+    trigger404(url) {
+        if (this.notFoundHandler === null) {
+            return this.notFoundDefault(url);
+        } else {
+            return this.notFoundHandler(url);
+        }
+    }
 
     /**
      * @method
@@ -129,6 +139,9 @@ export class Router {
         let routerObj = {
             pathFor: (name, parameter) => {
                 return this.pathFor(name, parameter);
+            },
+            trigger404: (url) => {
+                return this.trigger404(url);
             }
         }
 
