@@ -180,6 +180,17 @@
         `;
     }
     /**
+     * Manually triggers the 404 Not Found status
+     * @param {string} url - URL that caused the failure
+     */
+    trigger404(url) {
+      if (this.notFoundHandler === null) {
+        return this.notFoundDefault(url);
+      } else {
+        return this.notFoundHandler(url);
+      }
+    }
+    /**
      * @method
      * Create the routing table as an array
      * @example
@@ -200,6 +211,12 @@
       let routerObj = {
         pathFor: (name, parameter) => {
           return this.pathFor(name, parameter);
+        },
+        trigger404: (url) => {
+          return this.trigger404(url);
+        },
+        goTo: (name, parameters) => {
+          return this.goTo(name, parameters);
         }
       };
       if (location.hash && this.config.hashSensitive) {
@@ -331,6 +348,35 @@
         }
       }
       return uri;
+    }
+    /**
+     * Navigates to a named route (or a raw path/hash) programmatically, without
+     * requiring a user click on an anchor. Updates the URL and re-runs the router.
+     * @method
+     * @param {string} name - route name (registered with setName) or a raw path/hash.
+     * @param {Object} [parameters] - parameters for named routes containing {placeholders}.
+     * @example
+     * App.on("/dashboard", dashboardCallback).setName("dash");
+     * ....
+     * function loginCallback(req, router){
+     *  router.goTo("dash"); // navigates to /dashboard
+     * }
+     */
+    goTo(name, parameters = {}) {
+      if (!Utils.isSet(name))
+        throw new ArgumentNotFoundError("name");
+      if (!Utils.isString(name))
+        throw new ArgumentTypeError("name", "string", name);
+      let uri = this.pathFor(name, parameters);
+      if (uri === false)
+        uri = name.startsWith("/") ? name : `/${name}`;
+      if (this.config.hashSensitive) {
+        location.hash = uri.startsWith("/") ? uri.substring(1) : uri;
+      } else {
+        let target = this.config.basePath ? `${this.config.basePath}${uri}` : uri;
+        window.history.pushState({}, "", target);
+        this.route();
+      }
     }
     #proccessParameters(route) {
       let parameters = [];
