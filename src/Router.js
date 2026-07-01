@@ -245,34 +245,28 @@ export class Router {
         if (!Utils.isSet(name)) throw new ArgNotFound("name");
         if (!Utils.isString(name)) throw new ArgTypeError("name", "string", string);
         if (Utils.isEmpty(name)) throw new TypeError("name cannot be empty");
-        let nameFound = false;
-        let uri;
-        this.routes.some(route => {
-            if (route.name === name) {
-                nameFound = true;
-                uri = route.uri;
-                if (this.#containsParameter(uri)) {
 
-                    if (!Utils.isSet(parameters)) throw new ArgNotFound("parameters");
-                    if (!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
-                    if (Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
-                    let array = [];
-                    for (let value of route.uri.match(/[{](\w+)[}]/g)) {
-                        value = value.replace("{", "");
-                        value = value.replace("}", "");
-                        array.push(value);
-                    }
-                    if (array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`)
-                    for (let parameter in parameters) {
-                        if (!array.includes(parameter)) throw new Error(`Invalid parameter name [${parameter}]`);
-                        let r = new RegExp(`{${parameter}}`, "g");
-                        uri = uri.replace(r, parameters[parameter]);
-                    }
-                }
-            } else {
-                uri = false;
+        const route = this.routes.find(route => route.name === name);
+        if (!route) return false;
+
+        let uri = route.uri;
+        if (this.#containsParameter(uri)) {
+            if (!Utils.isSet(parameters)) throw new ArgNotFound("parameters");
+            if (!Utils.isObject(parameters)) throw new ArgTypeError("parameters", "object", parameters);
+            if (Utils.isEmpty(parameters)) throw new TypeError("parameters cannot be empty");
+            let array = [];
+            for (let value of route.uri.match(/[{](\w+)[}]/g)) {
+                value = value.replace("{", "");
+                value = value.replace("}", "");
+                array.push(value);
             }
-        });
+            if (array.length !== Object.getOwnPropertyNames(parameters).length) throw new Error(`The route with name [${name}] contains ${array.length} parameters. ${Object.getOwnPropertyNames(parameters).length} given`)
+            for (let parameter in parameters) {
+                if (!array.includes(parameter)) throw new Error(`Invalid parameter name [${parameter}]`);
+                let r = new RegExp(`{${parameter}}`, "g");
+                uri = uri.replace(r, parameters[parameter]);
+            }
+        }
         return uri;
     }
 
